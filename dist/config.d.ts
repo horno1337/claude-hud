@@ -1,7 +1,7 @@
 export type LineLayoutType = 'compact' | 'expanded';
 export type AutocompactBufferMode = 'enabled' | 'disabled';
 export type ContextValueMode = 'percent' | 'tokens' | 'remaining';
-export type HudElement = 'project' | 'context' | 'usage' | 'environment' | 'tools' | 'agents' | 'todos';
+export type HudElement = 'project' | 'context' | 'usage' | 'environment' | 'version' | 'tools' | 'agents' | 'todos';
 export type HudColorName = 'red' | 'green' | 'yellow' | 'magenta' | 'cyan' | 'brightBlue' | 'brightMagenta';
 /** A color value: named preset, 256-color index (0-255), or hex string (#rrggbb). */
 export type HudColorValue = HudColorName | number | string;
@@ -39,6 +39,7 @@ export interface HudConfig {
         showAgents: boolean;
         showTodos: boolean;
         showSessionName: boolean;
+        showClaudeCodeVersion: boolean;
         autocompactBuffer: AutocompactBufferMode;
         usageThreshold: number;
         sevenDayThreshold: number;

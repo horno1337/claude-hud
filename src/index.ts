@@ -6,25 +6,10 @@ import { getGitStatus } from './git.js';
 import { getUsage } from './usage-api.js';
 import { loadConfig } from './config.js';
 import { parseExtraCmdArg, runExtraCmd } from './extra-cmd.js';
+import { getClaudeCodeVersion } from './version.js';
 import type { RenderContext } from './types.js';
 import { fileURLToPath } from 'node:url';
 import { realpathSync } from 'node:fs';
-import { execSync } from 'node:child_process';
-
-let _cachedClaudeCodeVersion: string | undefined;
-
-function getClaudeCodeVersion(): string | undefined {
-  if (_cachedClaudeCodeVersion !== undefined) return _cachedClaudeCodeVersion || undefined;
-  try {
-    const output = execSync('claude --version', { timeout: 2000, stdio: ['ignore', 'pipe', 'ignore'] })
-      .toString().trim();
-    // Output is like "2.1.77 (Claude Code)" — extract just the version number
-    _cachedClaudeCodeVersion = output.split(' ')[0] ?? '';
-  } catch {
-    _cachedClaudeCodeVersion = '';
-  }
-  return _cachedClaudeCodeVersion || undefined;
-}
 
 export type MainDeps = {
   readStdin: typeof readStdin;
@@ -35,6 +20,7 @@ export type MainDeps = {
   loadConfig: typeof loadConfig;
   parseExtraCmdArg: typeof parseExtraCmdArg;
   runExtraCmd: typeof runExtraCmd;
+  getClaudeCodeVersion: typeof getClaudeCodeVersion;
   render: typeof render;
   now: () => number;
   log: (...args: unknown[]) => void;
@@ -50,6 +36,7 @@ export async function main(overrides: Partial<MainDeps> = {}): Promise<void> {
     loadConfig,
     parseExtraCmdArg,
     runExtraCmd,
+    getClaudeCodeVersion,
     render,
     now: () => Date.now(),
     log: console.log,
@@ -94,7 +81,7 @@ export async function main(overrides: Partial<MainDeps> = {}): Promise<void> {
 
     const sessionDuration = formatSessionDuration(transcript.sessionStart, deps.now);
 
-    const claudeCodeVersion = config.display.showClaudeCodeVersion ? getClaudeCodeVersion() : undefined;
+    const claudeCodeVersion = config.display.showClaudeCodeVersion ? await deps.getClaudeCodeVersion() : undefined;
 
     const ctx: RenderContext = {
       stdin,

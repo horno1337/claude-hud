@@ -151,6 +151,7 @@ Edit `~/.claude/plugins/claude-hud/config.json` directly for advanced settings s
 | `display.showAgents` | boolean | false | Show agents activity line |
 | `display.showTodos` | boolean | false | Show todos progress line |
 | `display.showSessionName` | boolean | false | Show session slug or custom title from `/rename` |
+| `display.showClaudeCodeVersion` | boolean | false | Show installed Claude Code version (e.g. `CC v2.1.77`) |
 | `usage.cacheTtlSeconds` | number | 60 | How long (seconds) to cache a successful usage API response |
 | `usage.failureCacheTtlSeconds` | number | 15 | How long (seconds) to cache a failed usage API response before retrying |
 | `colors.context` | color name | `green` | Base color for the context bar and context percentage |

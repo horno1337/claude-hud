@@ -152,6 +152,28 @@ function getNativePercent(stdin: StdinData): number | null {
   return null;
 }
 
+/**
+ * Returns true once Claude Code has reported real context usage data.
+ * Before the first API call in a session, current_usage is null and
+ * used_percentage is 0 — showing 0% is misleading because the context
+ * window already has overhead (system prompt, tools, memory files, etc.).
+ */
+export function isContextInitialized(stdin: StdinData): boolean {
+  const cw = stdin.context_window;
+  if (!cw) {
+    return false;
+  }
+  // used_percentage is a non-zero number → real data from Claude Code
+  if (typeof cw.used_percentage === 'number' && cw.used_percentage > 0) {
+    return true;
+  }
+  // current_usage is non-null → at least one API call has completed
+  if (cw.current_usage !== null && cw.current_usage !== undefined) {
+    return true;
+  }
+  return false;
+}
+
 export function getContextPercent(stdin: StdinData): number {
   // Prefer native percentage (v2.1.6+) - accurate and matches /context
   const native = getNativePercent(stdin);

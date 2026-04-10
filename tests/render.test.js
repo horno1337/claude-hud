@@ -1843,6 +1843,29 @@ test('renderSessionTokensLine renders cumulative session token totals', () => {
   assert.equal(line, 'Tokens 12.8M (in: 7k, out: 28k, cache: 12.8M)');
 });
 
+test('renderIdentityLine shows -- on cold start (current_usage null, no used_percentage)', () => {
+  const ctx = baseContext();
+  ctx.stdin.context_window = { context_window_size: 200000, current_usage: null };
+  const line = stripAnsi(renderIdentityLine(ctx));
+  assert.ok(line.includes('--'), `expected "--" in cold-start output, got: ${line}`);
+  assert.ok(!line.includes('0%'), `expected no "0%" in cold-start output, got: ${line}`);
+});
+
+test('renderIdentityLine shows -- when used_percentage is 0 and current_usage is null', () => {
+  const ctx = baseContext();
+  ctx.stdin.context_window = { context_window_size: 200000, current_usage: null, used_percentage: 0 };
+  const line = stripAnsi(renderIdentityLine(ctx));
+  assert.ok(line.includes('--'), `expected "--" in cold-start output, got: ${line}`);
+  assert.ok(!line.includes('0%'), `expected no "0%" in cold-start output, got: ${line}`);
+});
+
+test('renderIdentityLine shows percentage once context is initialized', () => {
+  const ctx = baseContext();
+  const line = stripAnsi(renderIdentityLine(ctx));
+  assert.ok(!line.includes('--'), `expected no "--" after initialization, got: ${line}`);
+  assert.ok(line.includes('%'), `expected "%" in initialized output, got: ${line}`);
+});
+
 test('renderSessionLine includes compact session token summary when enabled', () => {
   const ctx = baseContext();
   ctx.config.display.showSessionTokens = true;

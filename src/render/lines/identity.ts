@@ -3,6 +3,7 @@ import {
   getContextPercent,
   getBufferedPercent,
   getTotalTokens,
+  isContextInitialized,
 } from "../../stdin.js";
 import { coloredBar, label, getContextColor, RESET } from "../colors.js";
 import { getAdaptiveBarWidth } from "../../utils/terminal.js";
@@ -12,11 +13,21 @@ const DEBUG =
   process.env.DEBUG?.includes("claude-hud") || process.env.DEBUG === "*";
 
 export function renderIdentityLine(ctx: RenderContext): string {
+  const colors = ctx.config?.colors;
+  const display = ctx.config?.display;
+
+  // Before the first API call, Claude Code reports null usage and 0%.
+  // Show "--" to signal "not yet measured" rather than a misleading 0%.
+  if (!isContextInitialized(ctx.stdin)) {
+    return display?.showContextBar !== false
+      ? `${label(t("label.context"), colors)} ${coloredBar(0, getAdaptiveBarWidth(), colors)} --`
+      : `${label(t("label.context"), colors)} --`;
+  }
+
   const rawPercent = getContextPercent(ctx.stdin);
   const bufferedPercent = getBufferedPercent(ctx.stdin);
   const autocompactMode = ctx.config?.display?.autocompactBuffer ?? "enabled";
   const percent = autocompactMode === "disabled" ? rawPercent : bufferedPercent;
-  const colors = ctx.config?.colors;
 
   if (DEBUG && autocompactMode === "disabled") {
     console.error(
@@ -24,7 +35,6 @@ export function renderIdentityLine(ctx: RenderContext): string {
     );
   }
 
-  const display = ctx.config?.display;
   const contextValueMode = display?.contextValue ?? "percent";
   const contextValue = formatContextValue(ctx, percent, contextValueMode);
   const contextValueDisplay = `${getContextColor(percent, colors)}${contextValue}${RESET}`;

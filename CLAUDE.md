@@ -100,6 +100,7 @@ Lines 1-2 always shown. Additional lines are opt-in via config:
 
 | Threshold | Color | Action |
 |-----------|-------|--------|
+| uninitialized | — | Show `--` (no API call yet) |
 | <70% | Green | Normal |
 | 70-85% | Yellow | Warning |
 | >85% | Red | Show token breakdown |
